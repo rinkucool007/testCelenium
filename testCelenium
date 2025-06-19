@@ -37,6 +37,7 @@ project-root/
         <selenium.version>4.25.0</selenium.version>
         <cucumber.version>7.18.1</cucumber.version>
         <webdrivermanager.version>5.9.2</webdrivermanager.version>
+        <chromedriver.version>137.0.7151.68</chromedriver.version>
     </properties>
 
     <repositories>
@@ -45,8 +46,8 @@ project-root/
             <url>http://nexus.company.com/repository/maven-public/</url>
         </repository>
         <repository>
-            <id>nexus-rawproxy</id>
-            <url>http://nexus.company.com/repository/rawproxy/</url>
+            <id>nexus-raw-group</id>
+            <url>https://nexus.company.com/repository/raw-group/</url>
         </repository>
     </repositories>
 
@@ -125,14 +126,43 @@ project-root/
                                 <id>download-chromedriver</id>
                                 <phase>initialize</phase>
                                 <goals>
-                                    <goal>get</goal>
+                                    <goal>copy</goal>
                                 </goals>
                                 <configuration>
-                                    <groupId>com.google</groupId>
-                                    <artifactId>chromedriver</artifactId>
-                                    <version>LATEST</version> <!-- Replace with specific version if needed -->
-                                    <type>exe</type>
-                                    <outputDirectory>${project.build.directory}/drivers</outputDirectory>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.google</groupId>
+                                            <artifactId>chromedriver</artifactId>
+                                            <version>${chromedriver.version}</version>
+                                            <type>zip</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                            <destFileName>chromedriver-win64.zip</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>extract-chromedriver</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <unzip src="${project.build.directory}/chromedriver-win64.zip"
+                                               dest="${project.build.directory}/drivers"/>
+                                        <move file="${project.build.directory}/drivers/chromedriver-win64/chromedriver.exe"
+                                              tofile="${project.build.directory}/drivers/chromedriver.exe"/>
+                                        <delete dir="${project.build.directory}/drivers/chromedriver-win64"/>
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>
