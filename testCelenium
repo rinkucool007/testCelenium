@@ -118,28 +118,21 @@ project-root/
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <version>3.8.0</version>
+                        <groupId>com.googlecode.maven-download-plugin</groupId>
+                        <artifactId>download-maven-plugin</artifactId>
+                        <version>1.9.2</version>
                         <executions>
                             <execution>
                                 <id>download-chromedriver</id>
                                 <phase>initialize</phase>
                                 <goals>
-                                    <goal>copy</goal>
+                                    <goal>wget</goal>
                                 </goals>
                                 <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>com.google</groupId>
-                                            <artifactId>chromedriver</artifactId>
-                                            <version>${chromedriver.version}</version>
-                                            <type>zip</type>
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}</outputDirectory>
-                                            <destFileName>chromedriver-win64.zip</destFileName>
-                                        </artifactItem>
-                                    </artifactItems>
+                                    <url>https://nexus.company.com/repository/raw-group/chrome-for-testing-public/${chromedriver.version}/win64/chromedriver-win64.zip</url>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <outputFileName>chromedriver-win64.zip</outputFileName>
+                                    <overwrite>true</overwrite>
                                 </configuration>
                             </execution>
                         </executions>
