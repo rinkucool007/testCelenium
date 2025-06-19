@@ -1,4 +1,6 @@
 ```
+mvn archetype:generate -DgroupId=com.company -DartifactId=selenium-cucumber -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
 project-root/
 ├── pom.xml
 ├── src
