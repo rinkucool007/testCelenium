@@ -38,6 +38,11 @@ project-root/
         <cucumber.version>7.18.1</cucumber.version>
         <webdrivermanager.version>5.9.2</webdrivermanager.version>
         <chromedriver.version>137.0.7151.68</chromedriver.version>
+        <!-- Proxy settings (update as needed) -->
+        <proxy.host>proxy.company.com</proxy.host>
+        <proxy.port>8080</proxy.port>
+        <proxy.user></proxy.user>
+        <proxy.pass></proxy.pass>
     </properties>
 
     <repositories>
@@ -130,9 +135,21 @@ project-root/
                                 </goals>
                                 <configuration>
                                     <target>
+                                        <echo message="Downloading ChromeDriver ZIP..."/>
                                         <exec executable="curl" failonerror="true">
+                                            <arg value="-v"/> <!-- Verbose for debugging -->
                                             <arg value="-o"/>
                                             <arg value="${project.build.directory}/chromedriver-win64.zip"/>
+                                            <!-- Proxy settings (uncomment and configure if needed) -->
+                                            <!--
+                                            <arg value="--proxy"/>
+                                            <arg value="http://${proxy.user}:${proxy.pass}@${proxy.host}:${proxy.port}"/>
+                                            -->
+                                            <!-- Authentication (uncomment and configure if needed) -->
+                                            <!--
+                                            <arg value="-u"/>
+                                            <arg value="your-username:your-password"/>
+                                            -->
                                             <arg value="https://nexus.company.com/repository/raw-group/chrome-for-testing-public/${chromedriver.version}/win64/chromedriver-win64.zip"/>
                                         </exec>
                                     </target>
@@ -146,11 +163,14 @@ project-root/
                                 </goals>
                                 <configuration>
                                     <target>
+                                        <echo message="Extracting ChromeDriver..."/>
                                         <unzip src="${project.build.directory}/chromedriver-win64.zip"
                                                dest="${project.build.directory}/drivers"/>
+                                        <echo message="Moving chromedriver.exe..."/>
                                         <move file="${project.build.directory}/drivers/chromedriver-win64/chromedriver.exe"
                                               tofile="${project.build.directory}/drivers/chromedriver.exe"/>
-                                        <delete dir="${project.build.directory}/drivers/chromedriver-win64"/>
+                                        <echo message="Attempting to delete temporary directory..."/>
+                                        <delete dir="${project.build.directory}/drivers/chromedriver-win64" failOnError="false" verbose="true"/>
                                     </target>
                                 </configuration>
                             </execution>
