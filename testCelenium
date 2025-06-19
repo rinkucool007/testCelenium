@@ -266,11 +266,3 @@ Feature: Google Homepage Test
 ## Execution Command
 ```bash
 mvn clean test -Pchromedriver-download
-```
-
-## Test Details
-- Opens google.com using ChromeDriver
-- Closes browser after test
-- Generates Cucumber HTML reports in target/cucumber-reports.html
-- Logs test execution in logs/test.log
-```
