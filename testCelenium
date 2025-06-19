@@ -1,0 +1,274 @@
+```
+project-root/
+├── pom.xml
+├── src
+│   ├── test
+│   │   ├── java
+│   │   │   ├── runner
+│   │   │   │   └── TestRunner.java
+│   │   │   ├── stepdefinitions
+│   │   │   │   └── GoogleSteps.java
+│   │   │   └── utils
+│   │   │       └── DriverSetup.java
+│   │   ├── resources
+│   │   │   └── features
+│   │   │       └── Google.feature
+│   └── main
+│       └── resources
+│           └── log4j2.xml
+└── README.md
+
+# File Contents:
+
+## pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.company</groupId>
+    <artifactId>selenium-cucumber</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <selenium.version>4.25.0</selenium.version>
+        <cucumber.version>7.18.1</cucumber.version>
+        <webdrivermanager.version>5.9.2</webdrivermanager.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <url>http://nexus.company.com/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>nexus</id>
+            <url>http://nexus.company.com/repository/maven-public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.webdrivermanager</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>${webdrivermanager.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.26.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.26.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <includes>
+                        <include>**/TestRunner.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>chromedriver-download</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</groupId>
+                        <version>3.8.0</version>
+                        <executions>
+                            <execution>
+                                <id>initialize</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>get</goal>
+                                </goals>
+                                <configuration>
+                                    <groupId>com.google</groupId>
+                                    <artifactId>chromedriver</artifactId>
+                                    <version>LATEST</version>
+                                    <type>exe</type>
+                                    <dest>${project.build.directory}/drivers/</dest>
+                                    <remoteRepositories>
+                                        <remoteRepository>
+                                            <id>nexus-rawproxy</id>
+                                            <url>http://nexus.company.com/repository/rawproxy/</url>
+                                        </remoteRepository>
+                                    </remoteRepositories>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
+
+## src/test/java/com/company/test/runners/TestRunner.java
+package com.example.runner;
+
+import org.junit.runner.RunWith;
+import io.cucumber.api.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
+
+@RunWith(Cucumber.class)
+@CucumberOptions(
+        features = "src/test/resources/features",
+        glue = {"com.example.stepdefinitions"},
+        plugin = {"pretty", "html:target/cucumber-reports.html"},
+        monochrome = true
+)
+public class TestRunner {
+}
+
+## src/test/java/com/company/test/stepdefinitions/GoogleSteps.java
+package com.example.stepdefinitions;
+
+import com.example.utils.DriverSetup;
+import io.cucumber.java.After;
+import io.cucumber.java.en.Given;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.WebDriver;
+
+public class GoogleSteps {
+    private static final Logger logger = LogManager.getLogger(GoogleSteps.class);
+    private WebDriver driver;
+
+    @Given("I open Google homepage")
+    public void i_open_google_homepage() {
+        logger.info("Initializing ChromeDriver");
+        driver = DriverSetup.getDriver();
+        logger.info("Navigating to google.com");
+        driver.get("https://www.google.com");
+    }
+
+    @After
+    public void tearDown() {
+        if (driver != null) {
+            logger.info("Closing browser");
+            driver.quit();
+        }
+    }
+}
+
+## src/test/java/com/company/test/utils/DriverSetup.java
+package com.example.utils;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+public class DriverSetup {
+    private static final Logger logger = LogManager.getLogger(DriverSetup.class);
+    private static WebDriver driver;
+
+    public static WebDriver getDriver() {
+        if (driver == null) {
+            try {
+                logger.info("Setting up ChromeDriver from Nexus");
+                System.setProperty("webdriver.chrome.driver", 
+                    "./target/drivers/chromedriver.exe");
+                ChromeOptions options = new ChromeOptions();
+                options.addArguments("--headless"); // Optional: Run in headless mode
+                options.addArguments("--no-remote-allow-origins=*");
+                driver = new ChromeDriver(options);
+                logger.info("ChromeDriver initialized successfully");
+            } catch (Exception e) {
+                logger.error("Failed to initialize ChromeDriver", e);
+                throw new RuntimeException("Driver initialization failed", e);
+            }
+        }
+        return driver;
+    }
+}
+
+## src/test/resources/features/Google.feature
+Feature: Google Homepage Test
+
+  Scenario: Open Google Homepage
+    Given I open Google homepage
+
+## src/main/resources/log4j2.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+        </Console>
+        <File name="File" fileName="logs/test.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.apache.logging.log4j.level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
+
+## README.md
+# Selenium Cucumber Maven Project
+
+## Prerequisites
+- Java 17+
+- Maven 3.8.0+
+- Chrome browser installed
+- Nexus access (http://nexus.company.com/repository)
+
+## Setup
+1. Ensure Maven is configured to use company Nexus repository
+2. Place chromedriver.exe in ./target/drivers/ via Nexus rawproxy
+
+## Execution Command
+```bash
+mvn clean test -Pchromedriver-download
+```
+
+## Test Details
+- Opens google.com using ChromeDriver
+- Closes browser after test
+- Generates Cucumber HTML reports in target/cucumber-reports.html
+- Logs test execution in logs/test.log
+```
