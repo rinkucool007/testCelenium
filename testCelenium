@@ -44,6 +44,10 @@ project-root/
             <id>nexus</id>
             <url>http://nexus.company.com/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>nexus-rawproxy</id>
+            <url>http://nexus.company.com/repository/rawproxy/</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -60,6 +64,11 @@ project-root/
             <version>${selenium.version}</version>
         </dependency>
         <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.14.5</version> <!-- Adjusted to a version likely in Nexus -->
+        </dependency>
+        <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
             <version>${cucumber.version}</version>
@@ -71,7 +80,7 @@ project-root/
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.webdrivermanager</groupId>
+            <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
             <version>${webdrivermanager.version}</version>
         </dependency>
@@ -109,11 +118,11 @@ project-root/
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
                         <version>3.8.0</version>
                         <executions>
                             <execution>
-                                <id>initialize</id>
+                                <id>download-chromedriver</id>
                                 <phase>initialize</phase>
                                 <goals>
                                     <goal>get</goal>
@@ -121,15 +130,9 @@ project-root/
                                 <configuration>
                                     <groupId>com.google</groupId>
                                     <artifactId>chromedriver</artifactId>
-                                    <version>LATEST</version>
+                                    <version>LATEST</version> <!-- Replace with specific version if needed -->
                                     <type>exe</type>
-                                    <dest>${project.build.directory}/drivers/</dest>
-                                    <remoteRepositories>
-                                        <remoteRepository>
-                                            <id>nexus-rawproxy</id>
-                                            <url>http://nexus.company.com/repository/rawproxy/</url>
-                                        </remoteRepository>
-                                    </remoteRepositories>
+                                    <outputDirectory>${project.build.directory}/drivers</outputDirectory>
                                 </configuration>
                             </execution>
                         </executions>
