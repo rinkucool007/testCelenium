@@ -118,30 +118,26 @@ project-root/
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>com.googlecode.maven-download-plugin</groupId>
-                        <artifactId>download-maven-plugin</artifactId>
-                        <version>1.9.2</version>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>download-chromedriver</id>
                                 <phase>initialize</phase>
                                 <goals>
-                                    <goal>wget</goal>
+                                    <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <url>https://nexus.company.com/repository/raw-group/chrome-for-testing-public/${chromedriver.version}/win64/chromedriver-win64.zip</url>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                    <outputFileName>chromedriver-win64.zip</outputFileName>
-                                    <overwrite>true</overwrite>
+                                    <target>
+                                        <exec executable="curl" failonerror="true">
+                                            <arg value="-o"/>
+                                            <arg value="${project.build.directory}/chromedriver-win64.zip"/>
+                                            <arg value="https://nexus.company.com/repository/raw-group/chrome-for-testing-public/${chromedriver.version}/win64/chromedriver-win64.zip"/>
+                                        </exec>
+                                    </target>
                                 </configuration>
                             </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
                             <execution>
                                 <id>extract-chromedriver</id>
                                 <phase>initialize</phase>
